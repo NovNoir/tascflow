@@ -12,14 +12,14 @@ const STEPS = [
 ];
 
 const CATEGORIES = [
-  { id: "capture",  name: "Forms and capture",       color: "var(--cat-capture)" },
-  { id: "workflow", name: "Workflow",                color: "var(--cat-workflow)" },
-  { id: "people",   name: "People and tasks",        color: "var(--cat-people)" },
-  { id: "records",  name: "Documents and records",   color: "var(--cat-records)" },
-  { id: "connect",  name: "Connections",             color: "var(--cat-connect)" },
-  { id: "audit",    name: "Audit and reporting",     color: "var(--cat-audit)" },
-  { id: "users",    name: "Users and access",        color: "var(--cat-users)" },
-  { id: "admin",    name: "Building and running it", color: "var(--cat-admin)" },
+  { id: "capture",  name: "Forms and capture",       short: "Forms",       color: "var(--cat-capture)" },
+  { id: "workflow", name: "Workflow",                short: "Workflow",    color: "var(--cat-workflow)" },
+  { id: "people",   name: "People and tasks",        short: "People",      color: "var(--cat-people)" },
+  { id: "records",  name: "Documents and records",   short: "Documents",   color: "var(--cat-records)" },
+  { id: "connect",  name: "Connections",             short: "Connections", color: "var(--cat-connect)" },
+  { id: "audit",    name: "Audit and reporting",     short: "Audit",       color: "var(--cat-audit)" },
+  { id: "users",    name: "Users and access",        short: "Users",       color: "var(--cat-users)" },
+  { id: "admin",    name: "Building and running it", short: "Running it",  color: "var(--cat-admin)" },
 ];
 
 // "uses" says what the component does at each step; a step that isn't listed doesn't use it.
