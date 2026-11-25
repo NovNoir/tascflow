@@ -1,8 +1,8 @@
-# Forms and workflow system: concept
+# Tascflow
 
-An interactive concept for a forms and workflow system.
+Tascflow is a concept for a forms and workflow system: requests are lodged, reviewed, approved and filed.
 
-**View it:** https://novnoir.github.io/workflow-concept/
+**View it:** https://novnoir.github.io/tascflow/
 
 - **Process view** (`index.html`): the process (1. Lodgement, 2. Review and Decision, 3. Approval) plus a
   "Behind the scenes" lane for what the system does on its own. Click a step to see the components it uses; click a
