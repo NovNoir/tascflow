@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tascflow components</title>
 <script src="theme.js"></script>
+<link rel="icon" href="assets/tascflow-icon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/tascflow-icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/tascflow-icon-512.png">
 <style>
   :root {
     --ink: #1c2430; --muted: #667085; --line: #dfe3ea; --bg: #f5f6f8; --card: #fff; --field: #fff; --field-line: #cdd3dc;
@@ -40,8 +43,13 @@
   header { background: var(--card); border-bottom: 1px solid var(--line); padding: 12px max(16px, 2vw); }
   .head { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
   header h1 { font-size: 17px; margin: 0; }
-  header h1 .brand { font-weight: 800; letter-spacing: -.01em; }
-  header h1 .sub { font-weight: 500; color: var(--muted); margin-left: 6px; padding-left: 8px; border-left: 1px solid var(--line); }
+  header h1 { display: flex; align-items: center; gap: 0; }
+  header h1 .wm { height: 30px; width: auto; display: block; }
+  .wm-dark { display: none !important; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wm-light { display: none !important; } :root:not([data-theme="light"]) .wm-dark { display: block !important; } }
+  :root[data-theme="dark"] .wm-light { display: none !important; }
+  :root[data-theme="dark"] .wm-dark { display: block !important; }
+  header h1 .sub { font-weight: 500; font-size: 15px; color: var(--muted); margin-left: 12px; padding-left: 12px; border-left: 1px solid var(--line); line-height: 22px; }
   header p { margin: 2px 0 0; color: var(--muted); font-size: 12.5px; max-width: 70em; }
   .back { font-weight: 600; text-decoration: none; white-space: nowrap; }
   .back:hover { text-decoration: underline; }
@@ -130,7 +138,7 @@
 <header>
   <div class="head">
     <div>
-      <h1><span class="brand">Tascflow</span> <span class="sub">Component list</span></h1>
+      <h1><img class="wm wm-light" src="assets/tascflow-wordmark-light.svg" alt="Tascflow"><img class="wm wm-dark" src="assets/tascflow-wordmark-dark.svg" alt="Tascflow"><span class="sub">Component list</span></h1>
       <p>Every component Tascflow needs and what it does, with room for comments, a framework suggestion, and a decision on each.</p>
     </div>
     <div class="headlinks"><a class="back" href="index.html">← Process view</a><button class="themebtn" id="themeBtn" type="button">Dark mode</button></div>

@@ -11,3 +11,5 @@ Tascflow is a concept for a forms and workflow system: requests are lodged, revi
   Framework box for each. Entries save in your browser; Download CSV, Save backup and Load backup move them around.
 
 There is no build step. The steps, components and lessons live in `components-data.js`, shared by both pages.
+
+Logo: original artwork for Tascflow (in `assets/`). The wordmark letters are Manrope (SIL Open Font License), converted to outlines.
