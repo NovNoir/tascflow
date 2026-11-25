@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow system concept</title>
+<style>
+  :root {
+    --ink: #1c2430; --muted: #667085; --line: #dfe3ea; --bg: #f5f6f8; --card: #fff;
+    --shape: #e4edf9; --shape-line: #3b6aa8; --accent: #1f4f8f; --accent-soft: #e8f0fb;
+    --cat-capture: #2f7d6d; --cat-workflow: #3b6aa8; --cat-records: #9a5b13; --cat-connect: #0e7490;
+    --cat-audit: #7a3e8f; --cat-admin: #4b5563; --cat-users: #a3265a; --cat-people: #4d7c0f;
+    --grid-bg: #fbfcfe; --grid-line: #eef1f6; --conn: #55657d; --lane-fill: #eef1f5; --lane-line: #7b8799; --lane-sel: #3f4a5c;
+    --on-accent: #fff; --on-accent-muted: #d6e2f5; --subtle: #475467; --here-ink: #1a3560; --faint: #8a94a6; --chip-off: #98a2b3;
+    --body2: #374151; --hl: #e39b00; --grip: #b7bfcc; --shadow: var(--shadow);
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --ink: #e6e9ef; --muted: #9aa4b5; --line: #2a313d; --bg: #10141a; --card: #181d25;
+    --shape: #1d2b40; --shape-line: #6b98d6; --accent: #3b6fbf; --accent-soft: #1c2a40;
+    --cat-capture: #4fb3a0; --cat-workflow: #6b98d6; --cat-records: #d08a3a; --cat-connect: #3ab0cf; --cat-audit: #b07cc2; --cat-admin: #9aa4b5; --cat-users: #e07aa3; --cat-people: #9ccc4a;
+    --grid-bg: #13171e; --grid-line: #1d232d; --conn: #8b97ab; --lane-fill: #1c222c; --lane-line: #7b8799; --lane-sel: #4b5870;
+    --on-accent: #fff; --on-accent-muted: #d6e2f5; --subtle: #b3bccb; --here-ink: #cfe0fb; --faint: #7d889b; --chip-off: #6b7587;
+    --body2: #c3cad6; --hl: #f0b232; --grip: #3a4352; --shadow: rgba(0,0,0,.4); color-scheme: dark } }
+  :root[data-theme="dark"] {
+    --ink: #e6e9ef; --muted: #9aa4b5; --line: #2a313d; --bg: #10141a; --card: #181d25;
+    --shape: #1d2b40; --shape-line: #6b98d6; --accent: #3b6fbf; --accent-soft: #1c2a40;
+    --cat-capture: #4fb3a0; --cat-workflow: #6b98d6; --cat-records: #d08a3a; --cat-connect: #3ab0cf; --cat-audit: #b07cc2; --cat-admin: #9aa4b5; --cat-users: #e07aa3; --cat-people: #9ccc4a;
+    --grid-bg: #13171e; --grid-line: #1d232d; --conn: #8b97ab; --lane-fill: #1c222c; --lane-line: #7b8799; --lane-sel: #4b5870;
+    --on-accent: #fff; --on-accent-muted: #d6e2f5; --subtle: #b3bccb; --here-ink: #cfe0fb; --faint: #7d889b; --chip-off: #6b7587;
+    --body2: #c3cad6; --hl: #f0b232; --grip: #3a4352; --shadow: rgba(0,0,0,.4); color-scheme: dark }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { display: flex; flex-direction: column; background: var(--bg); color: var(--ink); font: 14px/1.45 "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
+  button { font: inherit; }
+
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 18px; background: var(--card); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 15px; margin: 0; }
+  header p { margin: 0; color: var(--muted); font-size: 12px; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+  .seg button { border: 0; background: var(--card); padding: 6px 12px; cursor: pointer; color: var(--ink); }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .navlink { margin-left: 12px; font-weight: 600; color: var(--shape-line); text-decoration: none; white-space: nowrap; }
+  .navlink:hover { text-decoration: underline; }
+  header > .seg { margin-left: auto; }
+
+  /* ---------- top panel: the process diagram ---------- */
+  #top { flex: 0 0 44%; min-height: 180px; position: relative; overflow: hidden;
+    background-color: var(--grid-bg);
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 20px 20px; }
+  #top .label { position: absolute; left: 18px; top: 12px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  #diagram { width: 100%; height: 100%; display: block; }
+  .step { cursor: pointer; outline: none; }
+  .step rect.box { fill: var(--shape); stroke: var(--shape-line); stroke-width: 1.5; transition: fill .15s, stroke-width .15s; }
+  .step:hover rect.box, .step:focus-visible rect.box { stroke-width: 2.5; }
+  .step.selected rect.box { fill: var(--accent); stroke: var(--accent); }
+  .step.selected text { fill: var(--on-accent); }
+  .step.selected .num { fill: var(--on-accent); } .step.selected .numtext { fill: var(--accent); }
+  .step.uses rect.box { stroke: var(--hl); stroke-width: 3; }
+  .step.dim { opacity: .35; }
+  .step text { fill: var(--ink); font-size: 15px; font-weight: 600; pointer-events: none; }
+  .step .who { font-size: 11.5px; font-weight: 400; fill: var(--muted); }
+  .step.selected .who { fill: var(--on-accent-muted); }
+  .step.lane rect.box { fill: var(--lane-fill); stroke: var(--lane-line); stroke-dasharray: 6 4; }
+  .step.lane.selected rect.box { fill: var(--lane-sel); stroke: var(--lane-sel); }
+  .step.lane.uses rect.box { stroke: var(--hl); stroke-width: 3; }
+  .step.lane .num { fill: var(--lane-line); }
+  .step.lane.selected .numtext { fill: var(--lane-sel); }
+  .num { fill: var(--shape-line); } .numtext { fill: var(--on-accent); font-size: 12px; font-weight: 700; }
+  .conn { stroke: var(--conn); stroke-width: 1.6; fill: none; }
+  .conn.loop { stroke-dasharray: 5 4; }
+  .connlabel { font-size: 11px; fill: var(--muted); }
+  .arrowhead { fill: var(--conn); }
+  .terminal { fill: var(--card); stroke: var(--conn); stroke-width: 1.6; }
+  .terminal.end { fill: var(--conn); }
+  .termlabel { font-size: 11px; fill: var(--muted); }
+
+  /* ---------- the splitter ---------- */
+  #split { flex: 0 0 8px; cursor: row-resize; background: var(--line); position: relative; }
+  #split::after { content: ""; position: absolute; left: 50%; top: 2px; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--grip); }
+
+  /* ---------- bottom panel ---------- */
+  #bottom { flex: 1 1 auto; overflow: auto; padding: 16px 18px 30px; }
+  .summary { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .summary h2 { margin: 0; font-size: 20px; }
+  .summary p { margin: 4px 0 0; color: var(--subtle); max-width: 60em; }
+  .count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .count b { color: var(--ink); font-size: 18px; }
+  .filters { display: flex; gap: 14px; align-items: center; font-size: 12px; color: var(--muted); }
+  .filters label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+
+  /* Groups pack into columns like a masonry wall, so hiding cards closes the gaps. */
+  .cats { columns: 4 250px; column-gap: 14px; }
+  .cat { padding-bottom: 14px; }
+  .cat h3 { break-after: avoid; }
+  .comp { break-inside: avoid; }
+  .cat h3 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 8px; display: flex; align-items: center; gap: 6px; }
+  .cat h3 i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+  .comp { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: opacity .15s, box-shadow .15s; }
+  .comp:hover { box-shadow: 0 2px 10px rgba(16,24,40,.08); }
+  .comp .name { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+  .comp .what { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .comp .here { font-size: 12.5px; margin-top: 7px; padding: 6px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--here-ink); }
+  .comp.off { opacity: .4; }
+  .comp.off .here { display: none; }
+  .comp.pinned { box-shadow: 0 0 0 2px var(--hl); }
+  .chips { display: flex; gap: 3px; flex-shrink: 0; }
+  .chip { font-size: 10.5px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); color: var(--chip-off); border: 1px solid var(--line); }
+  .chip.on { background: var(--shape-line); color: var(--on-accent); border-color: var(--shape-line); }
+  .chip.sys.on { background: var(--lane-line); border-color: var(--lane-line); }
+  @media (prefers-reduced-motion: reduce) { .comp, .step rect.box { transition: none; } }
+
+  .lessons { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .lesson { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--hl); border-radius: 8px; padding: 12px 14px; }
+  .lesson b { display: block; margin-bottom: 4px; }
+  .lesson p { margin: 0; font-size: 12.5px; color: var(--body2); }
+  .note { margin-top: 18px; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Forms and workflow system: concept</h1>
+    <p>Click a step to see the components it needs. Click a component to see which steps use it.</p>
+  </div>
+  <div class="seg" role="group" aria-label="View">
+    <button id="allBtn" aria-pressed="false">Whole process</button>
+    <button id="lessonsBtn" aria-pressed="false">Lessons learned</button>
+  </div>
+  <a class="navlink" href="components.html">Component list →</a>
+</header>
+
+<section id="top">
+  <div class="label">Process</div>
+  <svg id="diagram" viewBox="0 0 1010 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Process diagram: Lodgement, then Review and Decision, then Approval, with system work behind the scenes">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path class="arrowhead" d="M0,0 L10,5 L0,10 z"/>
+      </marker>
+    </defs>
+    <circle class="terminal" cx="55" cy="110" r="16"/>
+    <text class="termlabel" x="55" y="146" text-anchor="middle">Start</text>
+    <circle class="terminal" cx="945" cy="110" r="16"/><circle class="terminal end" cx="945" cy="110" r="10"/>
+    <text class="termlabel" x="966" y="114">Closed</text>
+    <path class="conn" d="M71,110 H158" marker-end="url(#arrow)"/>
+    <path class="conn" d="M358,110 H418" marker-end="url(#arrow)"/>
+    <path class="conn" d="M618,110 H678" marker-end="url(#arrow)"/>
+    <path class="conn" d="M878,110 H927" marker-end="url(#arrow)"/>
+    <text class="connlabel" x="648" y="100" text-anchor="middle">Supported</text>
+    <path class="conn loop" d="M518,157 V205 H258 V159" marker-end="url(#arrow)"/>
+    <text class="connlabel" x="388" y="222" text-anchor="middle">Returned for more information</text>
+    <path class="conn loop" d="M518,63 V30 H945 V92" marker-end="url(#arrow)"/>
+    <text class="connlabel" x="730" y="22" text-anchor="middle">Declined at review</text>
+    <path class="conn loop" d="M778,157 V205 H930 V124" marker-end="url(#arrow)"/>
+    <text class="connlabel" x="855" y="222" text-anchor="middle">Approved or declined</text>
+    <g id="steps"></g>
+  </svg>
+</section>
+
+<div id="split" role="separator" aria-orientation="horizontal" aria-label="Resize panels" tabindex="0"></div>
+
+<section id="bottom">
+  <div class="summary">
+    <div>
+      <h2 id="stepTitle"></h2>
+      <p id="stepDesc"></p>
+    </div>
+    <div class="filters" id="filters">
+      <label><input type="checkbox" id="showUnused"> Show unused too</label>
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+  <div id="content"></div>
+  <p class="note">Concept only: the wording is a starting point to work through. Edit the lists in components-data.js to change them.</p>
+</section>
+
+<script src="components-data.js"></script>
+<script>
+"use strict";
+
+let selected = "lodge";   // a step id, "all" or "lessons"
+let pinned = null;        // index of a component whose steps are highlighted in the diagram
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// Draw the step shapes: three boxes in the flow, and the "behind the scenes" lane under them.
+const BOX = { w: 200, h: 94, y: 63 };
+const XS = [158, 418, 678];
+const LANE = { x: 158, y: 246, w: 720, h: 52 };
+$("steps").innerHTML = STEPS.map((s, i) => s.lane ? `
+  <g class="step lane" data-id="${s.id}" tabindex="0" role="button" aria-label="${esc(s.name)}">
+    <rect class="box" x="${LANE.x}" y="${LANE.y}" width="${LANE.w}" height="${LANE.h}" rx="10"/>
+    <circle class="num" cx="${LANE.x + 22}" cy="${LANE.y + LANE.h / 2}" r="12"/>
+    <text class="numtext" x="${LANE.x + 22}" y="${LANE.y + LANE.h / 2 + 4}" text-anchor="middle">${s.chip}</text>
+    <text x="${LANE.x + LANE.w / 2}" y="${LANE.y + 22}" text-anchor="middle">${esc(s.name)}</text>
+    <text class="who" x="${LANE.x + LANE.w / 2}" y="${LANE.y + 40}" text-anchor="middle">${esc(s.who)}</text>
+  </g>` : `
+  <g class="step" data-id="${s.id}" tabindex="0" role="button" aria-label="Step ${s.chip}: ${esc(s.name)}">
+    <rect class="box" x="${XS[i]}" y="${BOX.y}" width="${BOX.w}" height="${BOX.h}" rx="10"/>
+    <circle class="num" cx="${XS[i] + 22}" cy="${BOX.y + 22}" r="12"/>
+    <text class="numtext" x="${XS[i] + 22}" y="${BOX.y + 26}" text-anchor="middle">${s.chip}</text>
+    <text x="${XS[i] + BOX.w / 2}" y="${BOX.y + 54}" text-anchor="middle">${esc(s.name)}</text>
+    <text class="who" x="${XS[i] + BOX.w / 2}" y="${BOX.y + 74}" text-anchor="middle">${esc(s.who)}</text>
+  </g>`).join("");
+
+function render() {
+  const all = selected === "all", lessons = selected === "lessons";
+  const step = STEPS.find((s) => s.id === selected);
+  const usedHere = (c) => all || !!c.uses[selected];
+  const pinnedComp = pinned != null ? COMPONENTS[pinned] : null;
+
+  document.querySelectorAll(".step").forEach((g) => {
+    const id = g.dataset.id;
+    g.classList.toggle("selected", id === selected);
+    g.classList.toggle("uses", !!pinnedComp && !!pinnedComp.uses[id]);
+    g.classList.toggle("dim", !!pinnedComp && !pinnedComp.uses[id]);
+    g.setAttribute("aria-pressed", id === selected);
+  });
+  $("allBtn").setAttribute("aria-pressed", all);
+  $("lessonsBtn").setAttribute("aria-pressed", lessons);
+  $("filters").classList.toggle("hidden", lessons);
+  $("filters").style.display = lessons ? "none" : "";
+
+  if (lessons) {
+    $("stepTitle").textContent = "Lessons learned";
+    $("stepDesc").textContent = "Problems in the current system that the new one should design out from the start.";
+    $("content").innerHTML = `<div class="lessons">${LESSONS.map((l) =>
+      `<div class="lesson"><b>${esc(l.title)}</b><p>${esc(l.text)}</p></div>`).join("")}</div>`;
+    return;
+  }
+
+  $("stepTitle").textContent = all ? "Whole process" : step.lane ? step.name : `Step ${step.chip}: ${step.name}`;
+  $("stepDesc").textContent = all
+    ? "Every component the system needs, with the steps that use each one (1, 2, 3, and S for behind the scenes). Click a step above to focus on it."
+    : step.desc;
+  const n = COMPONENTS.filter(usedHere).length;
+  $("count").innerHTML = all ? `<b>${COMPONENTS.length}</b> components` : `<b>${n}</b> of ${COMPONENTS.length} components used here`;
+
+  $("content").innerHTML = `<div class="cats">${CATEGORIES.map((cat) => {
+    // Components this step doesn't use are left out (unless "Show unused too" is ticked), and so is an empty group.
+    const items = COMPONENTS.map((c, i) => ({ c, i })).filter(({ c }) => c.cat === cat.id && (showUnused || usedHere(c)));
+    if (!items.length) return "";
+    return `<div class="cat" data-key="cat-${cat.id}"><h3 style="color:${cat.color}"><i style="background:${cat.color}"></i>${esc(cat.name)}</h3>
+      ${items.map(({ c, i }) => {
+        const on = usedHere(c);
+        const chips = STEPS.map((s) => `<span class="chip${s.lane ? " sys" : ""}${c.uses[s.id] ? " on" : ""}" title="${esc(s.name)}">${s.chip}</span>`).join("");
+        return `<div class="comp${on ? "" : " off"}${pinned === i ? " pinned" : ""}" data-i="${i}" data-key="c${i}" style="${on ? `border-left-color:${cat.color}` : ""}" tabindex="0">
+          <div class="name"><span>${esc(c.name)}</span><span class="chips">${chips}</span></div>
+          <div class="what">${esc(c.what)}</div>
+          ${!all && on ? `<div class="here">${esc(c.uses[selected])}</div>` : ""}
+        </div>`;
+      }).join("")}</div>`;
+  }).join("")}</div>`;
+}
+
+// Re-render, sliding cards that stay to their new places and fading in the ones that arrive.
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function update() {
+  const before = new Map();
+  document.querySelectorAll(".comp, .cat").forEach((el) => before.set(el.dataset.key, el.getBoundingClientRect()));
+  render();
+  if (reduceMotion) return;
+  document.querySelectorAll(".comp, .cat h3").forEach((el) => {
+    const key = el.dataset.key ?? el.parentElement.dataset.key;
+    const b = before.get(key), a = el.getBoundingClientRect();
+    if (b && el.matches(".comp")) {
+      const dx = b.left - a.left, dy = b.top - a.top;
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1)
+        el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 380, easing: "cubic-bezier(.2,.7,.2,1)" });
+    } else if (!b) {
+      el.animate([{ opacity: 0, transform: "scale(.97)" }, { opacity: 1, transform: "none" }], { duration: 260, delay: 80, easing: "ease-out", fill: "backwards" });
+    }
+  });
+}
+
+let showUnused = false;
+function selectStep(id) { selected = id; pinned = null; update(); }
+$("steps").addEventListener("click", (e) => { const g = e.target.closest(".step"); if (g) selectStep(g.dataset.id); });
+$("steps").addEventListener("keydown", (e) => {
+  const g = e.target.closest(".step");
+  if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); selectStep(g.dataset.id); }
+});
+$("allBtn").addEventListener("click", () => selectStep("all"));
+$("lessonsBtn").addEventListener("click", () => selectStep("lessons"));
+$("content").addEventListener("click", (e) => {
+  const el = e.target.closest(".comp"); if (!el) return;
+  const i = Number(el.dataset.i); pinned = pinned === i ? null : i; update();
+});
+$("content").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.classList.contains("comp")) e.target.click(); });
+$("showUnused").addEventListener("change", (e) => { showUnused = e.target.checked; update(); });
+
+// Drag the bar between the panels to resize them.
+(() => {
+  const top = $("top"), bar = $("split");
+  const setH = (px) => { top.style.flexBasis = Math.max(180, Math.min(window.innerHeight - 220, px)) + "px"; };
+  bar.addEventListener("pointerdown", (e) => {
+    bar.setPointerCapture(e.pointerId);
+    const move = (ev) => setH(ev.clientY - top.getBoundingClientRect().top);
+    bar.addEventListener("pointermove", move);
+    bar.addEventListener("pointerup", () => bar.removeEventListener("pointermove", move), { once: true });
+  });
+  bar.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); setH(top.offsetHeight + (e.key === "ArrowUp" ? -20 : 20)); }
+  });
+})();
+
+render();
+</script>
+</body>
+</html>
