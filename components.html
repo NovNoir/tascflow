@@ -4,24 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Component list: workflow system concept</title>
+<script src="theme.js"></script>
 <style>
   :root {
     --ink: #1c2430; --muted: #667085; --line: #dfe3ea; --bg: #f5f6f8; --card: #fff; --field: #fff; --field-line: #cdd3dc;
-    --shape-line: #3b6aa8; --accent: #1f4f8f; --accent-soft: #e8f0fb; --on-accent: #fff; --here-ink: #1a3560;
-    --faint: #8a94a6; --chip-off: #98a2b3; --lane-line: #7b8799; --hl: #e39b00; --ok: #2f7d4f;
+    --shape-line: #3b6aa8; --accent: #1f4f8f; --on-accent: #fff; --hl: #e39b00; --ok: #2f7d4f;
+    --decided: #2f8a4f; --decided-bg: #e8f5ec; --decided-line: #9fd3b1;
+    --undecided: #6b7585; --undecided-bg: #eceef2; --undecided-line: #c3c9d3;
+    --notviable: #c0392b; --notviable-bg: #fbeceb; --notviable-line: #eeb1aa;
     --cat-capture: #2f7d6d; --cat-workflow: #3b6aa8; --cat-people: #4d7c0f; --cat-records: #9a5b13; --cat-connect: #0e7490;
     --cat-audit: #7a3e8f; --cat-users: #a3265a; --cat-admin: #4b5563;
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
     --ink: #e6e9ef; --muted: #9aa4b5; --line: #2a313d; --bg: #10141a; --card: #181d25; --field: #10141a; --field-line: #353d4b;
-    --shape-line: #6b98d6; --accent: #3b6fbf; --accent-soft: #1c2a40; --on-accent: #fff; --here-ink: #cfe0fb;
-    --faint: #7d889b; --chip-off: #6b7587; --lane-line: #7b8799; --hl: #f0b232; --ok: #5fbf86;
+    --shape-line: #6b98d6; --accent: #3b6fbf; --on-accent: #fff; --hl: #f0b232; --ok: #5fbf86;
+    --decided: #4fb874; --decided-bg: #14271c; --decided-line: #2c6a42;
+    --undecided: #8d97a8; --undecided-bg: #20252e; --undecided-line: #3f4756;
+    --notviable: #ec6a5e; --notviable-bg: #2c1618; --notviable-line: #7a3530;
     --cat-capture: #4fb3a0; --cat-workflow: #6b98d6; --cat-people: #9ccc4a; --cat-records: #d08a3a; --cat-connect: #3ab0cf;
     --cat-audit: #b07cc2; --cat-users: #e07aa3; --cat-admin: #9aa4b5; color-scheme: dark } }
   :root[data-theme="dark"] {
     --ink: #e6e9ef; --muted: #9aa4b5; --line: #2a313d; --bg: #10141a; --card: #181d25; --field: #10141a; --field-line: #353d4b;
-    --shape-line: #6b98d6; --accent: #3b6fbf; --accent-soft: #1c2a40; --on-accent: #fff; --here-ink: #cfe0fb;
-    --faint: #7d889b; --chip-off: #6b7587; --lane-line: #7b8799; --hl: #f0b232; --ok: #5fbf86;
+    --shape-line: #6b98d6; --accent: #3b6fbf; --on-accent: #fff; --hl: #f0b232; --ok: #5fbf86;
+    --decided: #4fb874; --decided-bg: #14271c; --decided-line: #2c6a42;
+    --undecided: #8d97a8; --undecided-bg: #20252e; --undecided-line: #3f4756;
+    --notviable: #ec6a5e; --notviable-bg: #2c1618; --notviable-line: #7a3530;
     --cat-capture: #4fb3a0; --cat-workflow: #6b98d6; --cat-people: #9ccc4a; --cat-records: #d08a3a; --cat-connect: #3ab0cf;
     --cat-audit: #b07cc2; --cat-users: #e07aa3; --cat-admin: #9aa4b5; color-scheme: dark }
 
@@ -36,43 +43,59 @@
   header p { margin: 2px 0 0; color: var(--muted); font-size: 12.5px; max-width: 70em; }
   .back { font-weight: 600; text-decoration: none; white-space: nowrap; }
   .back:hover { text-decoration: underline; }
+  .headlinks { display: flex; align-items: center; gap: 14px; }
+  .themebtn { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: 6px 11px; cursor: pointer; font-weight: 600; white-space: nowrap; }
+  .themebtn:hover { border-color: var(--muted); }
 
   .toolbar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding: 10px max(16px, 2vw); }
   .tools { max-width: 1280px; margin: 0 auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .search { flex: 1 1 220px; max-width: 320px; padding: 7px 10px; border: 1px solid var(--field-line); border-radius: 8px; background: var(--field); }
+  .search { flex: 1 1 220px; max-width: 300px; padding: 7px 10px; border: 1px solid var(--field-line); border-radius: 8px; background: var(--field); }
   .seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-  .seg button { border: 0; background: var(--card); padding: 6px 10px; cursor: pointer; }
+  .seg button { border: 0; background: var(--card); padding: 6px 10px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
   .seg button + button { border-left: 1px solid var(--line); }
   .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .seg .n { font-size: 11px; opacity: .75; font-variant-numeric: tabular-nums; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   .spacer { flex: 1 1 auto; }
-  .progress { font-size: 12px; color: var(--muted); white-space: nowrap; }
-  .progress b { color: var(--ink); }
-  .status { font-size: 12px; color: var(--ok); min-width: 9em; }
+  .saved { font-size: 12px; color: var(--ok); min-width: 9em; }
   .btn { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 6px 11px; cursor: pointer; font-weight: 600; white-space: nowrap; }
   .btn:hover { border-color: var(--field-line); }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   :focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
 
   main { max-width: 1280px; margin: 0 auto; padding: 16px max(16px, 2vw) 60px; }
-  .colhead, .row { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, .65fr); gap: 14px; }
+  .colhead, .row { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, .75fr); gap: 14px; }
   .colhead { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 0 14px 6px; }
   section.cat { margin-bottom: 22px; }
   section.cat h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 8px; display: flex; align-items: center; gap: 7px; }
   section.cat h2 i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
   section.cat h2 small { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); font-size: 12px; }
-  .row { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
-  .row.filled { border-right: 3px solid var(--ok); }
-  .name { font-weight: 650; font-size: 15px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+
+  /* A card's colour shows its status: Decided green, Undecided grey, Not viable red. */
+  .row { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; transition: background .2s, border-color .2s; }
+  .row[data-status="decided"]   { background: var(--decided-bg);   border-color: var(--decided-line);   border-left-color: var(--decided); }
+  .row[data-status="undecided"] { background: var(--undecided-bg); border-color: var(--undecided-line); border-left-color: var(--undecided); }
+  .row[data-status="notviable"] { background: var(--notviable-bg); border-color: var(--notviable-line); border-left-color: var(--notviable); }
+  .name { font-weight: 650; font-size: 15px; }
   .what { color: var(--muted); margin-top: 1px; }
   .uses { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; font-size: 12.5px; }
-  .uses li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; align-items: start; }
-  .chips { display: flex; gap: 3px; flex-shrink: 0; }
-  .chip { font-size: 10.5px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center; color: var(--chip-off); border: 1px solid var(--line); }
-  .chip.on { background: var(--shape-line); color: var(--on-accent); border-color: var(--shape-line); }
-  .chip.sys.on { background: var(--lane-line); border-color: var(--lane-line); }
+  .uses b { font-weight: 600; }
   label.f { display: none; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
   textarea, .fw { width: 100%; border: 1px solid var(--field-line); border-radius: 7px; background: var(--field); padding: 7px 9px; }
   textarea { min-height: 84px; resize: vertical; line-height: 1.4; }
+  .side { display: flex; flex-direction: column; gap: 10px; }
+
+  .choices { display: flex; flex-wrap: wrap; gap: 6px; }
+  .choice { border: 1px solid var(--field-line); background: var(--field); border-radius: 999px; padding: 4px 11px; cursor: pointer; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .choice:hover { border-color: var(--muted); }
+  .choice[data-value="decided"] .dot   { background: var(--decided); }
+  .choice[data-value="undecided"] .dot { background: var(--undecided); }
+  .choice[data-value="notviable"] .dot { background: var(--notviable); }
+  .choice[aria-pressed="true"] { color: #fff; }
+  .choice[aria-pressed="true"] .dot { background: #fff; }
+  .choice[data-value="decided"][aria-pressed="true"]   { background: var(--decided);   border-color: var(--decided); }
+  .choice[data-value="undecided"][aria-pressed="true"] { background: var(--undecided); border-color: var(--undecided); }
+  .choice[data-value="notviable"][aria-pressed="true"] { background: var(--notviable); border-color: var(--notviable); }
+
   .empty { color: var(--muted); padding: 30px 0; text-align: center; }
   footer { max-width: 1280px; margin: 0 auto; padding: 0 max(16px, 2vw) 40px; color: var(--muted); font-size: 12px; }
 
@@ -81,6 +104,7 @@
     .row { grid-template-columns: 1fr; }
     label.f { display: block; }
   }
+  @media (prefers-reduced-motion: reduce) { .row { transition: none; } }
   @media print {
     .toolbar, .back { display: none; }
     .row { break-inside: avoid; }
@@ -93,33 +117,32 @@
   <div class="head">
     <div>
       <h1>Component list</h1>
-      <p>Every component the forms and workflow system needs, what it does at each step, and room for your comments and the framework that will provide it.</p>
+      <p>Every component the forms and workflow system needs and what it does, with room for comments, a framework suggestion, and a decision on each.</p>
     </div>
-    <a class="back" href="index.html">← Process view</a>
+    <div class="headlinks"><a class="back" href="index.html">← Process view</a><button class="themebtn" id="themeBtn" type="button">Dark mode</button></div>
   </div>
 </header>
 
 <div class="toolbar">
   <div class="tools">
     <input class="search" id="search" type="search" placeholder="Search components, comments, frameworks" aria-label="Search">
-    <div class="seg" role="group" aria-label="Filter by step" id="stepFilter"></div>
-    <span class="progress" id="progress"></span>
+    <div class="seg" role="group" aria-label="Show by decision" id="statusFilter"></div>
     <span class="spacer"></span>
-    <span class="status" id="status" role="status"></span>
-    <button class="btn" id="csvBtn" title="Download a spreadsheet of every component with its comment and framework">Download CSV</button>
-    <button class="btn" id="saveBtn" title="Save your comments and frameworks to a file you can keep or send">Save backup</button>
-    <button class="btn" id="loadBtn" title="Load comments and frameworks from a backup file">Load backup</button>
+    <span class="saved" id="saved" role="status"></span>
+    <button class="btn" id="csvBtn" title="Download a spreadsheet of every component with its comment, framework suggestion and decision">Download CSV</button>
+    <button class="btn" id="saveBtn" title="Save your entries to a file you can keep or send">Save backup</button>
+    <button class="btn" id="loadBtn" title="Load entries from a backup file">Load backup</button>
     <input type="file" id="loadFile" accept=".json,application/json" hidden>
   </div>
 </div>
 
 <main>
-  <div class="colhead"><span>Component and what it does</span><span>Comment</span><span>Framework</span></div>
+  <div class="colhead"><span>Component and what it does</span><span>Comment</span><span>Framework suggestion and decision</span></div>
   <div id="list"></div>
 </main>
 <footer>
-  Comments and frameworks save automatically in this browser only. To share them or move to another computer, use
-  Save backup and Load backup, or Download CSV for a spreadsheet. The components themselves come from components-data.js.
+  Entries save automatically in this browser only. To share them or move to another computer, use Save backup and
+  Load backup, or Download CSV for a spreadsheet. The components themselves come from components-data.js.
 </footer>
 
 <datalist id="frameworks"></datalist>
@@ -128,35 +151,47 @@
 <script>
 "use strict";
 const STORE_KEY = "workflow-concept-notes-v1";
+const STATUSES = [
+  { id: "decided", label: "Decided" },
+  { id: "undecided", label: "Undecided" },
+  { id: "notviable", label: "Not viable" },
+];
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-// Notes are keyed by component name: { "Input fields": { comment: "...", framework: "..." } }
+// Entries are keyed by component name: { "Input fields": { comment, framework, status } }
 let notes = {};
 try { notes = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; } catch { notes = {}; }
-const note = (name) => notes[name] || { comment: "", framework: "" };
-const isFilled = (name) => !!(note(name).comment.trim() || note(name).framework.trim());
+const note = (name) => ({ comment: "", framework: "", status: "", ...(notes[name] || {}) });
+function setNote(name, patch) {
+  const n = { ...note(name), ...patch };
+  if (!n.comment && !n.framework && !n.status) delete notes[name]; else notes[name] = n;
+}
 
-let stepFilter = "all";
+let statusFilter = "all";
 let query = "";
 
 let saveTimer = null;
 function persist() {
   clearTimeout(saveTimer);
-  $("status").textContent = "Saving…";
+  $("saved").textContent = "Saving…";
   saveTimer = setTimeout(() => {
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(notes));
-      $("status").textContent = "Saved in this browser";
+      $("saved").textContent = "Saved in this browser";
     } catch {
-      $("status").textContent = "Can't save in this browser: use Save backup";
+      $("saved").textContent = "Can't save in this browser: use Save backup";
     }
   }, 300);
 }
 
-function updateProgress() {
-  const n = COMPONENTS.filter((c) => isFilled(c.name)).length;
-  $("progress").innerHTML = `<b>${n}</b> of ${COMPONENTS.length} filled in`;
+// Filter buttons double as the tally: All, Decided, Undecided, Not viable, Not set.
+function renderFilter() {
+  const count = (id) => COMPONENTS.filter((c) => note(c.name).status === id).length;
+  const opts = [{ id: "all", label: "All", n: COMPONENTS.length },
+    ...STATUSES.map((s) => ({ ...s, n: count(s.id) })), { id: "", label: "Not set", n: count("") }];
+  $("statusFilter").innerHTML = opts.map((o) => `<button data-filter="${o.id}" aria-pressed="${statusFilter === o.id}">
+    ${o.id && o.id !== "all" ? `<span class="dot" style="background:var(--${o.id})"></span>` : ""}${esc(o.label)} <span class="n">${o.n}</span></button>`).join("");
 }
 
 function updateFrameworkSuggestions() {
@@ -164,14 +199,10 @@ function updateFrameworkSuggestions() {
   $("frameworks").innerHTML = [...seen].sort().map((f) => `<option value="${esc(f)}">`).join("");
 }
 
-// Step filter buttons: All, 1, 2, 3, S
-$("stepFilter").innerHTML = `<button data-step="all" aria-pressed="true">All</button>` +
-  STEPS.map((s) => `<button data-step="${s.id}" aria-pressed="false" title="${esc(s.name)}">${esc(s.chip)}</button>`).join("");
-
 function matches(c) {
-  if (stepFilter !== "all" && !c.uses[stepFilter]) return false;
-  if (!query) return true;
   const n = note(c.name);
+  if (statusFilter !== "all" && n.status !== statusFilter) return false;
+  if (!query) return true;
   const hay = [c.name, c.what, n.comment, n.framework, ...Object.values(c.uses)].join(" ").toLowerCase();
   return hay.includes(query);
 }
@@ -184,47 +215,57 @@ function render() {
       ${items.map((c) => {
         const id = COMPONENTS.indexOf(c);
         const n = note(c.name);
-        const chips = STEPS.map((s) => `<span class="chip${s.lane ? " sys" : ""}${c.uses[s.id] ? " on" : ""}" title="${esc(s.name)}">${esc(s.chip)}</span>`).join("");
-        const uses = STEPS.filter((s) => c.uses[s.id]).map((s) =>
-          `<li><span class="chip${s.lane ? " sys" : ""} on" title="${esc(s.name)}">${esc(s.chip)}</span><span>${esc(c.uses[s.id])}</span></li>`).join("");
-        return `<article class="row${isFilled(c.name) ? " filled" : ""}" style="border-left-color:${cat.color}" data-name="${esc(c.name)}">
+        const uses = STEPS.filter((s) => c.uses[s.id]).map((s) => `<li><b>${esc(s.name)}:</b> ${esc(c.uses[s.id])}</li>`).join("");
+        const choices = STATUSES.map((s) =>
+          `<button type="button" class="choice" data-value="${s.id}" aria-pressed="${n.status === s.id}"><span class="dot"></span>${esc(s.label)}</button>`).join("");
+        return `<article class="row" style="border-left-color:${cat.color}" data-status="${n.status}" data-name="${esc(c.name)}">
           <div>
-            <div class="name"><span>${esc(c.name)}</span><span class="chips">${chips}</span></div>
+            <div class="name">${esc(c.name)}</div>
             <div class="what">${esc(c.what)}</div>
             <ul class="uses">${uses}</ul>
           </div>
           <div>
             <label class="f" for="comment-${id}">Comment</label>
-            <textarea id="comment-${id}" data-field="comment" placeholder="Comments, questions, decisions…">${esc(n.comment)}</textarea>
+            <textarea id="comment-${id}" data-field="comment">${esc(n.comment)}</textarea>
           </div>
-          <div>
-            <label class="f" for="framework-${id}">Framework</label>
-            <input class="fw" id="framework-${id}" data-field="framework" list="frameworks" value="${esc(n.framework)}" placeholder="e.g. forms module, custom build">
+          <div class="side">
+            <div>
+              <label class="f" for="framework-${id}">Framework suggestion</label>
+              <input class="fw" id="framework-${id}" data-field="framework" list="frameworks" value="${esc(n.framework)}" aria-label="Framework suggestion for ${esc(c.name)}">
+            </div>
+            <div class="choices" role="group" aria-label="Decision for ${esc(c.name)}">${choices}</div>
           </div>
         </article>`;
       }).join("")}</section>`;
   }).join("");
-  $("list").innerHTML = html || `<p class="empty">No components match. Clear the search or pick another step.</p>`;
+  $("list").innerHTML = html || `<p class="empty">No components match. Clear the search or choose All.</p>`;
 }
 
-// Typing in a comment or framework box saves it.
+// Typing in a box saves it.
 $("list").addEventListener("input", (e) => {
   const field = e.target.dataset.field; if (!field) return;
-  const row = e.target.closest(".row"); const name = row.dataset.name;
-  notes[name] = { ...note(name), [field]: e.target.value };
-  if (!notes[name].comment && !notes[name].framework) delete notes[name];
-  row.classList.toggle("filled", isFilled(name));
-  updateProgress();
+  setNote(e.target.closest(".row").dataset.name, { [field]: e.target.value });
   persist();
 });
 $("list").addEventListener("change", (e) => { if (e.target.dataset.field === "framework") updateFrameworkSuggestions(); });
 
+// Clicking a decision colours the card; clicking the chosen one again clears it.
+$("list").addEventListener("click", (e) => {
+  const b = e.target.closest(".choice"); if (!b) return;
+  const row = b.closest(".row"); const name = row.dataset.name;
+  const value = note(name).status === b.dataset.value ? "" : b.dataset.value;
+  setNote(name, { status: value });
+  row.dataset.status = value;
+  row.querySelectorAll(".choice").forEach((x) => x.setAttribute("aria-pressed", x.dataset.value === value));
+  renderFilter();
+  persist();
+});
+
 $("search").addEventListener("input", (e) => { query = e.target.value.trim().toLowerCase(); render(); });
-$("stepFilter").addEventListener("click", (e) => {
+$("statusFilter").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
-  stepFilter = b.dataset.step;
-  $("stepFilter").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b));
-  render();
+  statusFilter = b.dataset.filter;
+  renderFilter(); render();
 });
 
 // ---------- files ----------
@@ -235,20 +276,22 @@ function download(name, text, type) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 const today = () => new Date().toISOString().slice(0, 10);
+const statusLabel = (id) => STATUSES.find((s) => s.id === id)?.label || "";
 
 $("csvBtn").addEventListener("click", () => {
   const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const header = ["Group", "Component", "What it does", ...STEPS.map((s) => s.name), "Comment", "Framework"];
-  const rows = COMPONENTS.map((c) => [
-    CATEGORIES.find((k) => k.id === c.cat)?.name, c.name, c.what,
-    ...STEPS.map((s) => c.uses[s.id] || ""), note(c.name).comment, note(c.name).framework,
-  ]);
+  const header = ["Group", "Component", "What it does", ...STEPS.map((s) => s.name), "Comment", "Framework suggestion", "Decision"];
+  const rows = COMPONENTS.map((c) => {
+    const n = note(c.name);
+    return [CATEGORIES.find((k) => k.id === c.cat)?.name, c.name, c.what, ...STEPS.map((s) => c.uses[s.id] || ""),
+      n.comment, n.framework, statusLabel(n.status)];
+  });
   const csv = "﻿" + [header, ...rows].map((r) => r.map(cell).join(",")).join("\r\n");
   download(`${today()}_workflow_components.csv`, csv, "text/csv;charset=utf-8");
 });
 
 $("saveBtn").addEventListener("click", () => {
-  download(`${today()}_workflow_component_notes.json`, JSON.stringify({ kind: "workflow-concept-notes", version: 1, saved: new Date().toISOString(), notes }, null, 2), "application/json");
+  download(`${today()}_workflow_component_notes.json`, JSON.stringify({ kind: "workflow-concept-notes", version: 2, saved: new Date().toISOString(), notes }, null, 2), "application/json");
 });
 
 $("loadBtn").addEventListener("click", () => $("loadFile").click());
@@ -261,18 +304,19 @@ $("loadFile").addEventListener("change", async (e) => {
     let count = 0;
     for (const [name, n] of Object.entries(data.notes)) {
       if (!COMPONENTS.some((c) => c.name === name)) continue;   // skip components that no longer exist
-      notes[name] = { comment: String(n.comment || ""), framework: String(n.framework || "") };
+      const status = STATUSES.some((s) => s.id === n.status) ? n.status : "";
+      setNote(name, { comment: String(n.comment || ""), framework: String(n.framework || ""), status });
       count++;
     }
-    render(); updateProgress(); updateFrameworkSuggestions(); persist();
-    $("status").textContent = `Loaded ${count} from ${file.name}`;
+    renderFilter(); render(); updateFrameworkSuggestions(); persist();
+    $("saved").textContent = `Loaded ${count} from ${file.name}`;
   } catch (err) {
-    $("status").textContent = `Couldn't load that file: ${err.message}`;
+    $("saved").textContent = `Couldn't load that file: ${err.message}`;
   }
 });
 
+renderFilter();
 render();
-updateProgress();
 updateFrameworkSuggestions();
 </script>
 </body>
