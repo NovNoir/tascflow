@@ -63,7 +63,7 @@
   :focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
 
   main { max-width: 1280px; margin: 0 auto; padding: 16px max(16px, 2vw) 60px; }
-  .colhead, .row { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, .75fr); gap: 14px; }
+  .colhead, .row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, .85fr); gap: 14px; }
   .colhead { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 0 14px 6px; }
   section.cat { margin-bottom: 22px; }
   section.cat h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 8px; display: flex; align-items: center; gap: 7px; }
@@ -84,8 +84,8 @@
   textarea { min-height: 84px; resize: vertical; line-height: 1.4; }
   .side { display: flex; flex-direction: column; gap: 10px; }
 
-  .choices { display: flex; flex-wrap: wrap; gap: 6px; }
-  .choice { border: 1px solid var(--field-line); background: var(--field); border-radius: 999px; padding: 4px 11px; cursor: pointer; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .choice { border: 1px solid var(--field-line); background: var(--field); border-radius: 999px; padding: 5px 6px; cursor: pointer; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; min-width: 0; }
   .choice:hover { border-color: var(--muted); }
   .choice[data-value="decided"] .dot   { background: var(--decided); }
   .choice[data-value="undecided"] .dot { background: var(--undecided); }
@@ -104,6 +104,8 @@
     .row { grid-template-columns: 1fr; }
     label.f { display: block; }
   }
+  /* Mid-width screens: the three buttons get narrow, so drop the dots and keep the words. */
+  @media (min-width: 821px) and (max-width: 1150px) { .choice .dot { display: none; } .choice { font-size: 12px; } }
   @media (prefers-reduced-motion: reduce) { .row { transition: none; } }
   @media print {
     .toolbar, .back { display: none; }
